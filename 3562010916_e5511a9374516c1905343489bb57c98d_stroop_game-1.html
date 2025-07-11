@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>斯特魯普效應測驗遊戲</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f8f9fa;
+      text-align: center;
+    }
+    .game-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      max-width: 90vw;
+    }
+    h1 {
+      margin-bottom: 0.5rem;
+    }
+    .title {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+    .word {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .choices button {
+      margin: 0.5rem;
+      padding: 1rem;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .score, .timer {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+    .end-screen {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>斯特魯普效應實驗</h1>
+    <div class="title">請選出以下文字的顏色：</div>
+    <div>
+      <label for="difficulty">選擇難度：</label>
+      <select id="difficulty">
+        <option value="easy">簡單</option>
+        <option value="medium">中等</option>
+        <option value="hard">困難</option>
+      </select>
+      <button onclick="startGame()">開始遊戲</button>
+    </div>
+    <div id="game" style="display:none">
+      <div class="word" id="word">顏色</div>
+      <div class="choices" id="choices"></div>
+      <div class="timer" id="timer">剩餘時間: 0</div>
+      <div class="score" id="score">分數: 0</div>
+    </div>
+    <div class="end-screen" id="end-screen">
+      <h2>實驗結束</h2>
+      <p id="results"></p>
+      <button onclick="location.reload()">重新開始</button>
+    </div>
+  </div>
+  <audio id="correct-sound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YVQAAAAA" preload="auto"></audio>
+  <audio id="wrong-sound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YVQAAAAA" preload="auto"></audio>
+  <script>
+    const colors = {
+      easy: ["紅色", "藍色", "綠色", "黃色"],
+      medium: ["紅色", "藍色", "綠色", "黃色", "紫色"],
+      hard: ["紅色", "藍色", "綠色", "黃色", "紫色", "橙色"]
+    };
+    const colorCodes = {
+      "紅色": "red",
+      "藍色": "blue",
+      "綠色": "green",
+      "黃色": "yellow",
+      "紫色": "purple",
+      "橙色": "orange"
+    };
+
+    let currentLevel = 'easy';
+    let timeLimit = 40;
+    let timer;
+    let score = 0;
+    let total = 0;
+
+    function startGame() {
+      document.getElementById("end-screen").style.display = "none";
+      currentLevel = document.getElementById("difficulty").value;
+      timeLimit = { easy: 40, medium: 50, hard: 60 }[currentLevel];
+      score = 0;
+      total = 0;
+      document.getElementById("game").style.display = "block";
+      document.getElementById("score").textContent = `分數: ${score}`;
+      startTimer();
+      nextQuestion();
+    }
+
+    function startTimer() {
+      const timerDisplay = document.getElementById("timer");
+      timerDisplay.textContent = `剩餘時間: ${timeLimit}`;
+      timer = setInterval(() => {
+        timeLimit--;
+        timerDisplay.textContent = `剩餘時間: ${timeLimit}`;
+        if (timeLimit <= 0) {
+          clearInterval(timer);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function nextQuestion() {
+      const colorList = colors[currentLevel];
+      const word = colorList[Math.floor(Math.random() * colorList.length)];
+      let fontColor = word;
+      while (fontColor === word) {
+        fontColor = colorList[Math.floor(Math.random() * colorList.length)];
+      }
+      const wordDiv = document.getElementById("word");
+      wordDiv.textContent = word;
+      wordDiv.style.color = colorCodes[fontColor];
+
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+      colorList.forEach(color => {
+        const btn = document.createElement("button");
+        btn.textContent = color;
+        btn.style.backgroundColor = colorCodes[color];
+        btn.onclick = () => checkAnswer(color, fontColor);
+        choicesDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, correct) {
+      const sound = document.getElementById(selected === correct ? "correct-sound" : "wrong-sound");
+      sound.play();
+      if (selected === correct) score++;
+      total++;
+      document.getElementById("score").textContent = `分數: ${score}`;
+      nextQuestion();
+    }
+
+    function endGame() {
+      document.getElementById("game").style.display = "none";
+      document.getElementById("end-screen").style.display = "block";
+      const accuracy = ((score / total) * 100).toFixed(1);
+      document.getElementById("results").innerHTML = `總正確數: ${score} / ${total}<br>反應準確率: ${accuracy}%`;
+    }
+  </script>
+</body>
+</html>
