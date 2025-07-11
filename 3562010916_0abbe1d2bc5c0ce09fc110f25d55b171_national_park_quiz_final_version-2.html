@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>國家公園與景觀小測驗</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .options button {
+      display: block;
+      margin: 5px 0;
+      width: 100%;
+      padding: 10px;
+    }
+    .correct {
+      background-color: #c8f7c5 !important;
+    }
+    .wrong {
+      background-color: #f7c5c5 !important;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    #finish-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>國家公園與景觀小測驗</h1>
+  <div id="quiz"></div>
+  <button id="finish-btn">作答完畢</button>
+  <div id="result"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "台灣最大的國家公園是哪一個？",
+        options: ["玉山國家公園", "太魯閣國家公園", "墾丁國家公園", "雪霸國家公園"],
+        answer: 0
+      },
+      {
+        question: "下列哪一個景觀位於台灣東部？",
+        options: ["阿里山", "太魯閣峽谷", "陽明山", "墾丁海灘"],
+        answer: 1
+      },
+      {
+        question: "哪一個國家公園以海洋與珊瑚礁聞名？",
+        options: ["金門國家公園", "陽明山國家公園", "墾丁國家公園", "雪霸國家公園"],
+        answer: 2
+      },
+      {
+        question: "以下哪個景點最適合觀賞櫻花？",
+        options: ["七星潭", "阿里山", "墾丁", "金門"],
+        answer: 1
+      },
+      {
+        question: "哪一個國家公園有著壯觀的大理岩峽谷？",
+        options: ["雪霸", "太魯閣", "陽明山", "金門"],
+        answer: 1
+      },
+      {
+        question: "下列哪一個景觀不屬於台灣？",
+        options: ["日月潭", "九份老街", "萬里長城", "野柳地質公園"],
+        answer: 2
+      },
+      {
+        question: "雪山和大霸尖山屬於哪一座國家公園？",
+        options: ["陽明山國家公園", "太魯閣國家公園", "雪霸國家公園", "玉山國家公園"],
+        answer: 2
+      },
+      {
+        question: "陽明山國家公園以什麼地形特色著稱？",
+        options: ["火山與溫泉", "珊瑚礁", "沙漠", "冰川"],
+        answer: 0
+      },
+      {
+        question: "金門國家公園最主要的文化特色為？",
+        options: ["客家文化", "閩南建築與戰地風情", "原住民文化", "海洋文化"],
+        answer: 1
+      },
+      {
+        question: "下列哪一個是台灣著名的地質景觀？",
+        options: ["女王頭", "泰山石", "大峽谷", "馬丘比丘"],
+        answer: 0
+      }
+    ];
+
+    let score = 0;
+    let correctCount = 0;
+
+    const quiz = document.getElementById("quiz");
+    questions.forEach((q, idx) => {
+      const container = document.createElement("div");
+      container.className = "question";
+      container.innerHTML = `<p>${idx + 1}. ${q.question}</p>`;
+
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "options";
+
+      q.options.forEach((opt, optIdx) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => {
+          if (btn.classList.contains("correct") || btn.classList.contains("wrong")) return;
+          if (optIdx === q.answer) {
+            btn.classList.add("correct");
+            score += 10;
+            correctCount++;
+          } else {
+            btn.classList.add("wrong");
+            optionsDiv.children[q.answer].classList.add("correct");
+            score -= 10;
+          }
+          Array.from(optionsDiv.children).forEach(b => b.disabled = true);
+        };
+        optionsDiv.appendChild(btn);
+      });
+
+      container.appendChild(optionsDiv);
+      quiz.appendChild(container);
+    });
+
+    document.getElementById("finish-btn").onclick = () => {
+      document.getElementById("result").textContent = `你答對了 ${correctCount}／10 題，總分為 ${score} 分。`;
+    };
+  </script>
+</body>
+</html>
